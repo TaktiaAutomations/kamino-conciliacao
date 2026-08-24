@@ -1,0 +1,167 @@
+<!-- @dsCard group="Kamino ERP" viewport="1280x820" subtitle="Conciliação bancária assistida por agente — fluxo completo (login, chat, 7 casos, trilha)" name="Conciliação assistida por agente" -->
+<!-- @startingPoint section="Kamino ERP" subtitle="Conciliação assistida por agente — chat protagonista + fila/trilha" viewport="1280x820" -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kamino · Conciliação assistida por agente</title>
+<link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<!-- domínio + motor (JS puro) -->
+<script src="conc-data.js"></script>
+<script src="conc-engine.js"></script>
+<style>
+  html, body { margin: 0; height: 100%; background: var(--gray-050); font-family: var(--font-sans); color: var(--text-body); }
+  #root { height: 100vh; }
+  a { color: var(--kamino-navy); } a:hover { color: var(--kamino-navy-hover); }
+  *::-webkit-scrollbar { height: 10px; width: 10px; }
+  *::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 999px; }
+  @keyframes concIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .conc-in { animation: concIn 260ms ease both; }
+  @keyframes concTyping { 0%, 60%, 100% { opacity: 0.3; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-3px); } }
+  .conc-typing { display: inline-block; animation: concTyping 1.2s infinite ease-in-out; }
+  .conc-undo { opacity: 0; transition: opacity 120ms; }
+  .conc-done-row:hover .conc-undo { opacity: 1; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<!-- UI (JSX) -->
+<script type="text/babel" src="conc-parts.jsx"></script>
+<script type="text/babel" src="conc-cards.jsx"></script>
+<script type="text/babel" src="conc-queue.jsx"></script>
+<script type="text/babel" src="conc-login.jsx"></script>
+<script type="text/babel" src="conc-chat.jsx"></script>
+<script type="text/babel">
+const { Sidebar, TopBar } = window.KaminoDesignSystem_066e8e;
+const { personas, brl } = window.ConcData;
+const { initialState, reducer, selectBalances, interpret, confirmText, EXTRATO_CASES } = window.ConcEngine;
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const mkid = () => `m-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+
+function App() {
+  const [state, dispatch] = React.useReducer(reducer, undefined, initialState);
+  const stateRef = React.useRef(state);
+  stateRef.current = state;
+
+  if (!state.persona) {
+    return <window.ConcUI.Login onPick={(p) => dispatch({ type: "LOGIN", persona: p })} />;
+  }
+
+  const persona = personas[state.persona];
+  const balances = selectBalances(state);
+  const resolvedSet = new Set(state.resolved);
+
+  const add = (msgs) => dispatch({ type: "ADD_MESSAGES", messages: msgs });
+  const replace = (id, message) => dispatch({ type: "REPLACE_MESSAGE", id, message });
+
+  async function handleSend(text) {
+    const now = Date.now();
+    add([{ id: mkid(), role: "user", text, ts: now }]);
+    const pid = mkid();
+    add([{ id: pid, role: "agent", pending: true, ts: now }]);
+
+    const ctx = { persona: stateRef.current.persona, resolved: new Set(stateRef.current.resolved), apiKeyPresent: false };
+    const reply = interpret(text, ctx);
+    await sleep(560);
+
+    const [first, ...rest] = reply.messages;
+    replace(pid, { id: pid, role: "agent", ...first, ts: Date.now() });
+    for (const m of rest) {
+      await sleep(m.card ? 420 : 680);
+      add([{ id: mkid(), role: "agent", ...m, ts: Date.now() }]);
+    }
+    if (reply.effects) {
+      for (const e of reply.effects) {
+        await sleep(520);
+        applyResolve(e.caseKey, true);
+      }
+    }
+  }
+
+  function applyResolve(caseKey, automatica) {
+    if (stateRef.current.resolved.includes(caseKey)) return;
+    dispatch({ type: "RESOLVE", caseKey, autor: automatica ? "Agente Kamino" : persona.nome, automatica });
+    const projected = [...stateRef.current.resolved, caseKey];
+    if (!automatica) {
+      add([{ id: mkid(), role: "agent", text: confirmText(caseKey), ts: Date.now() }]);
+    }
+    const allDone = EXTRATO_CASES.every((k) => projected.includes(k));
+    const wasDone = EXTRATO_CASES.every((k) => stateRef.current.resolved.includes(k));
+    if (allDone && !wasDone) {
+      const b = selectBalances({ ...stateRef.current, resolved: projected });
+      setTimeout(() => add([{ id: mkid(), role: "agent", text: `É isso: **extrato 100% explicado**. Saldo do banco e saldo interno batem em **${brl(b.banco)}** — agora é um número em que dá para confiar. Levou minutos, não horas.`, ts: Date.now() }]), 700);
+    }
+  }
+
+  const onResolveFromCard = (k) => applyResolve(k, false);
+  const onUndo = (k) => dispatch({ type: "UNDO", caseKey: k, autor: persona.nome });
+
+  const navItems = [
+    { id: "painel", label: "Painel", icon: "painel" },
+    { id: "pagar", label: "Pagar", icon: "pagar" },
+    { id: "receber", label: "Receber", icon: "receber" },
+    { id: "contas", label: "Contas", icon: "contas" },
+    { id: "cartoes", label: "Cartões", icon: "cartoes" },
+    { id: "relatorios", label: "Relatórios", icon: "relatorios" },
+    { id: "mais", label: "Mais", icon: "mais" },
+  ];
+
+  return (
+    <div style={{ display: "flex", height: "100%" }}>
+      <Sidebar
+        logoSrc="../../assets/kamino-icon.png"
+        workspace={{ name: "acme", domain: "acme.kamino.pro" }}
+        items={navItems}
+        activeId="contas"
+      />
+
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+        <TopBar userName={persona.nome} org="Acme" />
+
+        {/* subheader de contexto */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 24px", background: "var(--white)", borderBottom: "1px solid var(--border-subtle)" }}>
+          <div>
+            <h1 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "var(--kamino-ink)", lineHeight: 1.2 }}>Conciliação bancária · Junho 2026</h1>
+            <p style={{ margin: 0, fontSize: 11, color: "var(--text-muted)" }}>Acme Serviços · assistida por agente</p>
+          </div>
+          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 8, paddingRight: 8 }}>
+              <span style={{ width: 28, height: 28, borderRadius: "50%", background: persona.cor, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600 }}>{persona.iniciais}</span>
+              <span style={{ fontSize: 12, color: "var(--gray-600)" }}>{persona.cargo}</span>
+            </span>
+            <button onClick={() => dispatch({ type: "LOGOUT" })} style={subBtn}>trocar persona</button>
+            <button onClick={() => dispatch({ type: "RESET" })} style={subBtn}>Reiniciar demo</button>
+          </div>
+        </div>
+
+        {/* saldos */}
+        <div style={{ padding: "12px 24px", background: "#f4f6f9", borderBottom: "1px solid var(--border-subtle)" }}>
+          <window.ConcUI.TopBalances b={balances} />
+        </div>
+
+        {/* corpo */}
+        <div style={{ flex: 1, display: "flex", minHeight: 0 }}>
+          <window.ConcUI.Chat messages={state.messages} persona={persona} balances={balances} resolvedSet={resolvedSet} onSend={handleSend} onResolve={onResolveFromCard} />
+          <window.ConcUI.QueuePanel resolvedSet={resolvedSet} audit={state.audit} onChip={handleSend} onUndo={onUndo} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const subBtn = {
+  fontSize: 12, fontWeight: 500, padding: "6px 10px", borderRadius: "var(--radius-md)",
+  border: "1px solid var(--border-default)", background: "var(--white)", color: "var(--text-muted)",
+  cursor: "pointer", fontFamily: "var(--font-sans)",
+};
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+/* Kamino Design System — global entry point.
+   Consumers link this single file. It is an @import manifest only. */
+
+@import url('./tokens/fonts.css');
+@import url('./tokens/colors.css');
+@import url('./tokens/typography.css');
+@import url('./tokens/spacing.css');

@@ -1,0 +1,7 @@
+/* Kamino — Webfont declarations
+   NOTE: Kamino's production UI font could not be extracted from the source
+   screenshots. Inter is used as the closest widely-available substitute for
+   the clean humanist-grotesque sans seen in the product. See readme.md.
+   Loaded from Google Fonts CDN below; swap in real font files when available. */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');

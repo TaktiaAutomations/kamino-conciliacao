@@ -1,0 +1,15 @@
+# Dependências e build
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Ambiente
+.env
+.env.*
+!.env.example
+*.local
+
+# Arquivos temporários do Office / OS
+~$*
+Thumbs.db
+.DS_Store

@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+/* ————————————————————————————————————————————————
+   Kamino Design System — tokens alinhados ao DS oficial.
+   DROP-IN: substitui o @theme do seu src/index.css.
+   Como os componentes usam classes semânticas (bg-navy-600,
+   text-kgreen-600, bg-lime-brand, text-coral-600, text-ink…),
+   trocar estes valores re-skina o app inteiro sem mexer em JSX.
+———————————————————————————————————————————————— */
+@theme {
+  /* navy — ação primária (era #1e3a5f) */
+  --color-navy-50:  #eaf1f8;
+  --color-navy-100: #cfe0ef;
+  --color-navy-200: #a9c8e2;
+  --color-navy-300: #6fa1cd;
+  --color-navy-500: #0a5da0;
+  --color-navy-600: #05508a;   /* primário: bg-navy-600 */
+  --color-navy-700: #0a4271;   /* hover/press */
+  --color-navy-900: #001e36;   /* ink profundo */
+
+  /* verde de ação — Salvar / CNAB / conciliado */
+  --color-kgreen-500: #12a866;
+  --color-kgreen-600: #079455;
+  --color-kgreen-700: #05713f;
+
+  /* lima de destaque — item de nav ativo */
+  --color-lime-brand:     #e6fd8c;
+  --color-lime-brandDark: #d4f03c;
+
+  /* coral — valores a pagar / erro */
+  --color-coral-500: #e02d20;
+  --color-coral-600: #b42318;
+
+  --color-ink:   #001e36;
+  --color-muted: #667085;
+
+  --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+
+  /* raios do DS (opcional — Tailwind v4 os expõe como rounded-*) */
+  --radius-md: 6px;   /* botões, inputs, segmented */
+  --radius-lg: 8px;   /* cards, painéis */
+  --radius-xl: 12px;  /* modais, persona cards */
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #f9fafb;               /* page bg do DS (era #f4f6f9) */
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* scrollbar discreta estilo produto */
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb {
+  background: #d0d5dd;               /* gray-300 do DS */
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #98a2b3;               /* gray-400 do DS */
+  background-clip: content-box;
+}
+
+@keyframes msg-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-msg-in { animation: msg-in 0.28s cubic-bezier(0.22, 1, 0.36, 1); }
+
+@keyframes dot-blink {
+  0%, 80%, 100% { opacity: 0.2; }
+  40% { opacity: 1; }
+}
+.typing-dot { animation: dot-blink 1.2s infinite both; }
+
+/* pulse-ring agora usa o verde do DS (#079455) */
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(7, 148, 85, 0.35); }
+  100% { box-shadow: 0 0 0 12px rgba(7, 148, 85, 0); }
+}
+.pulse-ring { animation: pulse-ring 1.6s ease-out infinite; }
+
+/* count-flash agora usa o lime do DS (#e6fd8c) */
+@keyframes count-flash {
+  0%   { background-color: rgba(230, 253, 140, 0.6); }
+  100% { background-color: transparent; }
+}
+.count-flash { animation: count-flash 0.9s ease-out; }

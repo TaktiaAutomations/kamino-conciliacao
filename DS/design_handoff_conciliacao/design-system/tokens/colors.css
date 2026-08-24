@@ -1,0 +1,63 @@
+/* Kamino — Color tokens
+   Sampled directly from the Kamino ERP product UI (kamino.pro). */
+
+:root {
+  /* ---- Brand ---- */
+  --kamino-ink: #001e36;        /* logo navy, deepest brand color */
+  --kamino-navy: #05508a;       /* primary action blue (Salvar+Novo, Atalhos, Pix, Editar) */
+  --kamino-navy-hover: #0a4271; /* darker press/hover */
+  --kamino-navy-050: #eaf1f8;
+  --kamino-navy-100: #cfe0ef;
+  --kamino-lime: #e6fd8c;       /* active-nav highlight pill */
+  --kamino-lime-ink: #3f4a12;   /* readable text on lime */
+
+  /* ---- Semantic status ---- */
+  --green-600: #079455;         /* success / Salvar / CNAB actions */
+  --green-700: #05713f;
+  --green-050: #e7f6ee;
+  --red-600: #e02d20;           /* negative values, errors, amounts due */
+  --red-700: #b42318;
+  --red-050: #fdeceb;
+  --orange-500: #f79009;        /* warning, pending dot */
+  --orange-050: #fef4e6;
+
+  /* ---- Neutral scale ---- */
+  --gray-900: #101828;          /* primary text / headings (near-ink) */
+  --gray-800: #1d2939;
+  --gray-700: #344054;
+  --gray-600: #475467;
+  --gray-500: #667085;          /* secondary text, icon rail */
+  --gray-400: #98a2b3;          /* placeholder */
+  --gray-300: #d0d5dd;          /* input & card border */
+  --gray-200: #eaecf0;          /* divider */
+  --gray-100: #f2f4f7;          /* subtle fill / secondary button */
+  --gray-050: #f9fafb;          /* page background */
+  --white: #ffffff;
+
+  /* ---- Semantic aliases ---- */
+  --text-heading: var(--kamino-ink);
+  --text-body: var(--gray-700);
+  --text-muted: var(--gray-500);
+  --text-placeholder: var(--gray-400);
+  --text-on-dark: var(--white);
+
+  --surface-page: var(--gray-050);
+  --surface-card: var(--white);
+  --surface-subtle: var(--gray-100);
+  --surface-rail: var(--white);
+
+  --border-default: var(--gray-300);
+  --border-subtle: var(--gray-200);
+  --border-focus: var(--kamino-navy);
+
+  --action-primary: var(--kamino-navy);
+  --action-primary-hover: var(--kamino-navy-hover);
+  --action-success: var(--green-600);
+  --action-success-hover: var(--green-700);
+  --action-danger: var(--red-600);
+
+  --value-positive: var(--green-600);
+  --value-negative: var(--red-600);
+
+  --focus-ring: rgba(5, 80, 138, 0.28);
+}

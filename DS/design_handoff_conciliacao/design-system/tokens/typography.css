@@ -1,0 +1,31 @@
+/* Kamino — Typography tokens */
+
+:root {
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  /* Weights — Kamino leans on 400 body, 600 for labels/buttons, 700 for headings */
+  --fw-regular: 400; /* @kind font */
+  --fw-medium: 500; /* @kind font */
+  --fw-semibold: 600; /* @kind font */
+  --fw-bold: 700; /* @kind font */
+
+  /* Type scale (px) — compact, product-UI oriented */
+  --text-xs: 12px;    /* meta, timestamps, helper */
+  --text-sm: 13px;    /* dense table cells, secondary */
+  --text-base: 14px;  /* default body / inputs / buttons */
+  --text-md: 15px;
+  --text-lg: 16px;    /* card titles */
+  --text-xl: 18px;    /* section headers (Dados do pagamento) */
+  --text-2xl: 22px;   /* page titles (Novo Pagamento) */
+  --text-3xl: 28px;   /* dashboard numbers */
+  --text-display: 34px;
+
+  --lh-tight: 1.2; /* @kind font */
+  --lh-snug: 1.35; /* @kind font */
+  --lh-normal: 1.5; /* @kind font */
+
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.04em;   /* uppercase sidebar section labels (CAPTURA, REEMBOLSOS) */
+}
